@@ -33,3 +33,31 @@ class Item:
         """
         self.price *= self.pay_rate
         return None
+
+    @property
+    def name(self) -> str:
+        """
+        Возвращает название товара
+        """
+        return self.__name
+
+    @name.setter
+    def name(self, new_name: str) -> None:
+        """
+        Присваивает атрибуту name значение new_name,
+        при условии, что длина названия товара не больше 10 символов
+        """
+        if len(new_name) <= 10:
+            self.__name = new_name
+        else:
+            raise Exception(f'Длина наименования товара "{new_name}" превышает 10 символов')
+    @classmethod
+    def instantiate_from_csv(cls):
+        cls.all.clear()
+        with open('../src/items.csv') as csvfile:
+            item = csv.DictReader(csvfile)
+            for row in item:
+                cls(row['name'], row['price'], row['quantity'])
+    @staticmethod
+    def string_to_number(file):
+        return int(float(file))
