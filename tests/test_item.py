@@ -11,6 +11,7 @@ def item_fixture():
 def test_calculate_total_price(item_fixture):
     assert item_fixture.calculate_total_price() == 200000
 
+
 def test_string_to_number():
     assert Item.string_to_number('15') == 15
     assert Item.string_to_number('25.0') == 25

@@ -17,11 +17,18 @@ class Item:
         self.price = price
         self.quantity = quantity
 
+
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.__name}', {self.price}, {self.quantity})"
 
     def __str__(self) -> str:
         return self.__name
+
+    def __add__(self, other):
+        if isinstance(other, Item):
+            return self.quantity + other.quantity
+        else:
+            raise TypeError('Нельзя складывать экземпляры классов Phone или Item с экземплярами не Phone или Item')
 
     def calculate_total_price(self) -> float:
         """
