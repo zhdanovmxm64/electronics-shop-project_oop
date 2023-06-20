@@ -1,9 +1,16 @@
+import csv
+import os
+
+from src.exceptions import InstantiateCSVError
+
+
 class Item:
     """
     Класс для представления товара в магазине.
     """
     pay_rate = 1.0
     all = []
+    CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'items.csv')
 
     def __init__(self, name: str, price: float, quantity: int) -> None:
         """
@@ -13,22 +20,27 @@ class Item:
         :param price: Цена за единицу товара.
         :param quantity: Количество товара в магазине.
         """
-        self.name = name
+        super().__init__()
+        self.__name = name
         self.price = price
         self.quantity = quantity
 
+        Item.all.append(self)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}('{self.__name}', {self.price}, {self.quantity})"
+        return f'{self.__class__.__name__}' \
+               f'{self.__name, self.price, self.quantity}'
 
-    def __str__(self) -> str:
-        return self.__name
+    def __str__(self):
+        return f'{self.__name}'
 
     def __add__(self, other):
-        if isinstance(other, Item):
+        '''
+        Складывает два обьекты, относящиеся к
+        классу Item или его подклассам
+        '''
+        if isinstance(other, self.__class__):
             return self.quantity + other.quantity
-        else:
-            raise TypeError('Нельзя складывать экземпляры классов Phone или Item с экземплярами не Phone или Item')
 
     def calculate_total_price(self) -> float:
         """
@@ -36,42 +48,60 @@ class Item:
 
         :return: Общая стоимость товара.
         """
-        total_price: float = self.price * self.quantity
-        return total_price
+        return self.price * self.quantity
 
-    @property
     def apply_discount(self) -> None:
         """
         Применяет установленную скидку для конкретного товара.
         """
         self.price *= self.pay_rate
-        return None
 
     @property
     def name(self) -> str:
         """
-        Возвращает название товара
+        Возвращает имя товара
+        :return: имя товара
         """
         return self.__name
 
     @name.setter
-    def name(self, new_name: str) -> None:
+    def name(self, value) -> None:
         """
-        Присваивает атрибуту name значение new_name,
-        при условии, что длина названия товара не больше 10 символов
+        Устанавливает имя товара, проверяя,
+        что имя более 1 символа и не привышает 10
+        символов
         """
-        if len(new_name) <= 10:
-            self.__name = new_name
+        if len(value) > 10:
+            print("Длина названия товара не "
+                  "должна превышать 10 символов")
+        elif len(value) == 0:
+            print("Длина названия должна иметь "
+                  "хотябы 1 символ")
         else:
-            raise Exception(f'Длина наименования товара "{new_name}" превышает 10 символов')
-    @classmethod
-    def instantiate_from_csv(cls):
-        cls.all.clear()
-        with open('../src/items.csv') as csvfile:
-            item = csv.DictReader(csvfile)
-            for row in item:
-                cls(row['name'], row['price'], row['quantity'])
-    @staticmethod
-    def string_to_number(file):
-        return int(float(file))
+            self.__name = value
 
+    @classmethod
+    def instantiate_from_csv(cls) -> None:
+        '''
+        Инициализирует экземпляры класса,
+        получая обьекты из csv файла
+        '''
+        cls.all.clear()
+        try:
+            with open(cls.CSV, newline='') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    if len(row['name']) == 0 or int(row['price']) < 1 or int(row['quantity']) < 0:
+                        raise InstantiateCSVError('Файл item.csv поврежден')
+                    cls(row['name'], row['price'], row['quantity'])
+        except FileNotFoundError:
+            raise FileNotFoundError('Отсутствует файл item.csv')
+
+    @staticmethod
+    def string_to_number(string: str) -> int:
+        """
+        Переводит строку в число
+        :return: число из числа-строки
+        """
+        data = float(string)
+        return int(data)
