@@ -1,53 +1,47 @@
 import pytest
-from src.phone import Phone
+
 from src.item import Item
+from src.phone import Phone
 
 
 @pytest.fixture
-def phone_fixture():
-    return Phone("iPhone 14", 120_000, 5, 2)
+def make_phone():
+    return Phone('Iphone', 15_000, 2, 1)
 
 
-@pytest.fixture
-def item_fixture():
-    return Item("Смартфон", 10000, 20)
+def test_init(make_phone):
+    phone = make_phone
+    assert phone.name == "Iphone"
+    assert phone.price == 15_000
+    assert phone.quantity == 2
+    assert phone.number_of_sim == 1
 
 
-def test___repr__(phone_fixture):
-    assert repr(phone_fixture) == "Phone('iPhone 14', 120000, 5, 2)"
+def test_repr(make_phone):
+    phone = make_phone
+    assert repr(phone) == "Phone('Iphone', 15000, 2, 1)"
 
 
-def test___str__(phone_fixture):
-    assert str(phone_fixture) == 'iPhone 14'
+def test_add(make_phone):
+    phone = make_phone
+    item = Item("Телевизор", 3000, 4)
+    assert phone + phone == 4
+    assert phone + item == 6
 
 
-def test___add__(phone_fixture):
-    assert phone_fixture + phone_fixture == 10
-
-
-def test___add__2(phone_fixture, item_fixture):
-    assert phone_fixture + item_fixture == 25
-
-
-def test___add__typeerror(phone_fixture):
-    with pytest.raises(TypeError):
-        phone_fixture + 10
-
-
-def test_number_of_sim(phone_fixture):
-    assert phone_fixture.number_of_sim == 2
-
-
-def test_number_of_sim_2(phone_fixture):
-    phone_fixture.number_of_sim = 1
-    assert phone_fixture.number_of_sim == 1
-
-
-def test_number_of_sim_3(phone_fixture):
+def test_num_of_sim(make_phone):
     with pytest.raises(ValueError):
-        phone_fixture.number_of_sim = 0
+        phone = Phone('Iphone', 15_000, 2, -1)
 
-
-def test_number_of_sim_4(phone_fixture):
+    phone_2 = make_phone
+    assert phone_2.number_of_sim == 1
     with pytest.raises(ValueError):
-        phone_fixture.number_of_sim = 3.7
+        phone_2.number_of_sim = -3
+
+    phone_3 = make_phone
+    with pytest.raises(ValueError):
+        phone_3.number_of_sim = 1.3
+
+    phone_4 = make_phone
+    with pytest.raises(ValueError):
+        phone_4.number_of_sim = 'fdf'
