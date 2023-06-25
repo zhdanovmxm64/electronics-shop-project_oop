@@ -74,7 +74,6 @@ def test_instantiate_from_csv():
         Item.instantiate_from_csv()
 
 
-
 def test_string_to_number():
     string = "343"
     assert Item.string_to_number(string) == 343
